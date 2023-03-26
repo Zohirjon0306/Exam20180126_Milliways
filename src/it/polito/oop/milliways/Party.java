@@ -18,12 +18,14 @@ public class Party {
 		return this.companions;
 	}
 
+	public void setHall(Hall hall){
+		this.hall = hall;
+	}
+
     public void addCompanions(Race race, int num) {
 		if(this.companions.containsKey(race)) {
 			int a = this.companions.get(race);
-//    		System.out.println(a);
 			int b = a + num;
-//    		System.out.println(b);
 			this.companions.put(race, b);
 		}
 		else {
@@ -33,11 +35,9 @@ public class Party {
 
 	public int getNum() {
 		int ris = 0;
-
 		for(int a : this.companions.values()) {
 			ris += a;
 		}
-
 		return ris;
 	}
 

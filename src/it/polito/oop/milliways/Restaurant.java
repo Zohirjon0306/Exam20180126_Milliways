@@ -1,11 +1,8 @@
 package it.polito.oop.milliways;
 
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Restaurant {
 
@@ -19,21 +16,16 @@ public class Restaurant {
 	
 	public Race defineRace(String name) throws MilliwaysException{
 		Race r = new Race(name);
-
 		if(this.races.get(name) != null) {
 			throw new MilliwaysException();
 		}
-
 		this.races.put(name, r);
-
 		return r;
 	}
 	
 	public Party createParty() {
 		Party p = new Party();
-
 		this.partyes.add(p);
-
 		return p;
 	}
 	
@@ -41,7 +33,6 @@ public class Restaurant {
 		if(this.halls.containsKey(id)) {
 			throw new MilliwaysException();
 		}
-
 		Hall h = new Hall(id);
 		this.order.add(h);
 		this.halls.put(id, h);
@@ -50,27 +41,99 @@ public class Restaurant {
 	}
 
 	public List<Hall> getHallList() {
-		return null;
+		return this.order;
 	}
 
 	public Hall seat(Party party, Hall hall) throws MilliwaysException {
-        return null;
+        if (!hall.isSuitable(party)){
+			throw new MilliwaysException();
+		}
+
+		party.setHall(hall);
+		return hall;
 	}
 
 	public Hall seat(Party party) throws MilliwaysException {
-        return null;
+		for (Hall h : this.halls.values()) {
+			if (h.isSuitable(party)){
+				party.setHall(h);
+				return h;
+			}
+		}
+        throw new MilliwaysException();
 	}
 
 	public Map<Race, Integer> statComposition() {
-        return null;
-	}
+		Map<Race, Integer> ris = new HashMap<>();
+		int c = 0;
 
-	public List<String> statFacility() {
-        return null;
+		for (Race r : this.races.values()) {
+			for (Party p : this.partyes) {
+				if (p.getHall()!= null){
+					for (Map.Entry<Race, Integer> e : p.getCompanions().entrySet()) {
+						if (e.getKey().getName().equals(r.getName())){
+							c += e.getValue();
+						}
+					}
+				}
+				if (c !=0) ris.put(r, c);
+			}
+		}
+		return ris;
+	}
+	public List<String> statFacility() {Map<String, Integer> tmp = new HashMap<>();
+		Set<String> set = new HashSet<>();
+
+		for(Map.Entry<Integer, Hall> h : this.halls.entrySet()) {
+			for(String str : h.getValue().getFacilities()) {
+				set.add(str);
+			}
+		}
+
+		int c = 0;
+		for(String str : set) {
+			c = 0;
+			for(Map.Entry<Integer, Hall> h : this.halls.entrySet()) {
+				for(String s : h.getValue().getFacilities()) {
+					if(s.equals(str)) {
+						c++;
+					}
+				}
+			}
+			tmp.put(str, c);
+		}
+
+		return tmp.entrySet().stream().sorted((a,b) -> {
+			if(a.getValue() == b.getValue()) {
+				return a.getKey().compareTo(b.getKey());
+			}
+
+			return b.getValue() - a.getValue();
+		}).map(e -> e.getKey()).collect(Collectors.toList());
 	}
 	
 	public Map<Integer,List<Integer>> statHalls() {
-        return null;
+		Set<Integer> set = new HashSet<>();
+		Map<Integer,List<Integer>> map = new TreeMap<>();
+
+		for(Map.Entry<Integer, Hall> h : this.halls.entrySet()) {
+			set.add(h.getValue().getFacilities().size());
+		}
+
+
+		for(Integer i : set) {
+			List<Integer> list = new ArrayList<>();
+			for(Map.Entry<Integer, Hall> h : this.halls.entrySet()) {
+				if(h.getValue().getFacilities().size() ==  i) {
+					list.add(h.getValue().getId());
+				}
+			}
+			list.sort((a,b) -> a.compareTo(b));
+			map.put(i, list);
+		}
+
+		return map;
+	}
 	}
 
-}
+

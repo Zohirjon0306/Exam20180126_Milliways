@@ -1,5 +1,6 @@
 package it.polito.oop.milliways;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,7 +20,7 @@ public class Race {
 	}
 	
 	public List<String> getRequirements() {
-		return this.requirements.stream().sorted((a,b) -> a.compareTo(b)).collect(Collectors.toList());
+		return this.requirements.stream().sorted(Comparator.naturalOrder()).collect(Collectors.toList());
 	}
 	
 	public String getName() {
